@@ -1,4 +1,6 @@
 <?php 
+//define your token 
+define('TOKEN','open');
 class WeChat {
     private $_appid;
     private $_appsecret;
@@ -62,5 +64,45 @@ class WeChat {
         $curl = sprintf($curl,$this->_token);
         $content = $this->_request($curl,true,'POST',$data);
         return $content;
+    }
+    /**
+    * @description:用户验证的方法(这个方法在验证token的时候使用)
+    * @author:henry
+    * @create:2016年04月08日10:55:42
+    * @return:false/true
+    */
+    public function valid(){
+        $echoStr = $_GET['echoStr'];
+        //valid signature,option 
+        if($this->checkSignature()){
+            echo $echoStr;
+            exit();
+        }
+    }
+    /**
+    * @description:用户验证的方法(这个方法在验证token的时候使用)
+    * @author:henry
+    * @create:2016年04月08日10:55:42
+    * @return:false/true
+    */
+    public function checkSignature(){
+        //you must define TOKEN by yourself
+        if(!defined("TOKEN")){
+            throw new Exception("TOKEN is not defined!");
+        }
+        $signature = $_GET['signature'];
+        $timestamp = $_GET['timestamp'];
+        $nonce = $_GET['nonce'];
+        $token = TOKEN;
+        $tmpArr = array($token,$timestamp,$nonce);
+        //use SORT_STRING rule
+        sort($tmpArr,SORT_STRING);
+        $tmpStr = implode($tmpArr);
+        $tmpStr = sha1($tmpStr);
+        if($tmpStr == $signature){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
